@@ -264,6 +264,13 @@
   font-size: 0.875rem;
 }
 
+.module-error {
+  margin: 0.5rem 0 0;
+  color: rgb(185 28 28);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
 .module-controls {
   display: flex;
   align-items: center;

@@ -3,7 +3,7 @@ import { TabView, TabPanel } from "primereact/tabview";
 import { UsersModule } from "./components/UsersModule";
 import { HotelsModule } from "./components/HotelsModule";
 import { BookingsModule } from "./components/BookingsModule";
-import { mockUsers, mockHotels, mockBookings } from "./data/mockData";
+import { mockHotels, mockBookings } from "./data/mockData";
 
 function App() {
   const [bookings, setBookings] = useState(mockBookings);
@@ -33,7 +33,7 @@ function App() {
       <main className="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
         <TabView className="dashboard-tabs">
           <TabPanel header="Users" leftIcon="pi pi-users mr-2">
-            <UsersModule users={mockUsers} />
+            <UsersModule />
           </TabPanel>
           <TabPanel header="Hotels" leftIcon="pi pi-building mr-2">
             <HotelsModule hotels={mockHotels} />
