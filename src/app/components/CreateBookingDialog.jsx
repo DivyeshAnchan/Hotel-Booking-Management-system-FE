@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -8,7 +8,37 @@ import { Card } from "primereact/card";
 import { Rating } from "primereact/rating";
 import { Tag } from "primereact/tag";
 import { Divider } from "primereact/divider";
-import { mockHotels, mockUsers } from "../data/mockData";
+
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+function mapUserFromApi(user) {
+  return {
+    id: user._id || user.id,
+    name: user.name || "",
+    email: user.email || "",
+    phoneNumber: user.phone || user.phoneNumber || ""
+  };
+}
+
+function mapHotelFromApi(hotel) {
+  return {
+    id: hotel._id || hotel.id,
+    name: hotel.name || "",
+    location: hotel.location || "",
+    phoneNumber: hotel.phone || hotel.phoneNumber || "",
+    state: hotel.state || "",
+    city: hotel.city || "",
+    rating: hotel.rating ?? 0,
+    totalBooked: hotel.totalBooked ?? 0,
+    availableRooms: hotel.availableRooms ?? 0,
+    pricePerNight: hotel.pricePerNight ?? 0,
+    roomTypes: Array.isArray(hotel.roomTypes) && hotel.roomTypes.length > 0
+      ? hotel.roomTypes
+      : ["Standard"]
+  };
+}
+
 function CreateBookingDialog({
   visible,
   onHide,
@@ -24,13 +54,94 @@ function CreateBookingDialog({
   const [selectedRoomType, setSelectedRoomType] = useState(null);
   const [numberOfGuests, setNumberOfGuests] = useState(1);
   const [validationError, setValidationError] = useState("");
-  const states = Array.from(new Set(mockHotels.map((h) => h.state))).sort();
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState("");
+  const [hotels, setHotels] = useState([]);
+  const [hotelsLoading, setHotelsLoading] = useState(false);
+  const [hotelsError, setHotelsError] = useState("");
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const controller = new AbortController();
+
+    async function loadUsers() {
+      setUsersLoading(true);
+      setUsersError("");
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/users?page=1&limit=100&sortBy=name&sortOrder=asc`,
+          { signal: controller.signal }
+        );
+        const json = await response.json();
+
+        if (!response.ok || !json.success) {
+          throw new Error(json.message || "Failed to fetch guests");
+        }
+
+        setUsers(Array.isArray(json.data) ? json.data.map(mapUserFromApi) : []);
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setUsers([]);
+        setUsersError(err.message || "Failed to fetch guests");
+      } finally {
+        if (!controller.signal.aborted) {
+          setUsersLoading(false);
+        }
+      }
+    }
+
+    loadUsers();
+
+    return () => controller.abort();
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+
+    const controller = new AbortController();
+
+    async function loadHotels() {
+      setHotelsLoading(true);
+      setHotelsError("");
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/hotels?page=1&limit=100&status=active&sortBy=name&sortOrder=asc`,
+          { signal: controller.signal }
+        );
+        const json = await response.json();
+
+        if (!response.ok || !json.success) {
+          throw new Error(json.message || "Failed to fetch hotels");
+        }
+
+        setHotels(Array.isArray(json.data) ? json.data.map(mapHotelFromApi) : []);
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setHotels([]);
+        setHotelsError(err.message || "Failed to fetch hotels");
+      } finally {
+        if (!controller.signal.aborted) {
+          setHotelsLoading(false);
+        }
+      }
+    }
+
+    loadHotels();
+
+    return () => controller.abort();
+  }, [visible]);
+
+  const states = Array.from(new Set(hotels.map((h) => h.state))).sort();
   const cities = selectedState ? Array.from(
     new Set(
-      mockHotels.filter((h) => h.state === selectedState).map((h) => h.city)
+      hotels.filter((h) => h.state === selectedState).map((h) => h.city)
     )
   ).sort() : [];
-  const availableHotels = mockHotels.filter(
+  const availableHotels = hotels.filter(
     (h) => h.state === selectedState && h.city === selectedCity && h.availableRooms > 0
   );
   const resetDialog = () => {
@@ -75,7 +186,7 @@ function CreateBookingDialog({
         const days = Math.ceil(
           (checkOutDate.getTime() - checkInDate.getTime()) / (1e3 * 60 * 60 * 24)
         );
-        const pricePerNight = selectedRoomType === "Standard" ? 150 : selectedRoomType === "Deluxe" ? 250 : 400;
+        const pricePerNight = selectedHotel.pricePerNight || (selectedRoomType === "Standard" ? 150 : selectedRoomType === "Deluxe" ? 250 : 400);
         const totalAmount = days * pricePerNight;
         const newBooking = {
           id: Math.floor(Math.random() * 1e4),
@@ -83,12 +194,13 @@ function CreateBookingDialog({
           hotelName: selectedHotel.name,
           userId: selectedUser.id,
           userName: selectedUser.name,
+          bookedDate: /* @__PURE__ */ new Date(),
           checkInDate,
           checkOutDate,
           numberOfGuests,
           roomType: selectedRoomType,
           totalAmount,
-          paid: true
+          status: "confirmed"
         };
         onBookingCreated(newBooking);
         setStep("success");
@@ -100,7 +212,7 @@ function CreateBookingDialog({
     const days = Math.ceil(
       (checkOutDate.getTime() - checkInDate.getTime()) / (1e3 * 60 * 60 * 24)
     );
-    const pricePerNight = selectedRoomType === "Standard" ? 150 : selectedRoomType === "Deluxe" ? 250 : 400;
+    const pricePerNight = selectedHotel?.pricePerNight || (selectedRoomType === "Standard" ? 150 : selectedRoomType === "Deluxe" ? 250 : 400);
     return days * pricePerNight;
   };
   const getDialogHeader = () => {
@@ -142,9 +254,10 @@ function CreateBookingDialog({
       setValidationError("");
     }}
     options={states.map((s) => ({ label: s, value: s }))}
-    placeholder="Choose a state"
+    placeholder={hotelsLoading ? "Loading states..." : "Choose a state"}
     showClear
     className="w-full"
+    disabled={hotelsLoading}
     panelClassName="dialog-dropdown-panel"
   />
           </div>
@@ -161,10 +274,14 @@ function CreateBookingDialog({
     placeholder="Choose a city"
     showClear
     className="w-full"
-    disabled={!selectedState}
+    disabled={!selectedState || hotelsLoading}
     panelClassName="dialog-dropdown-panel"
   />
           </div>
+          {hotelsError && <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+            <i className="pi pi-exclamation-circle text-red-600" />
+            <p className="m-0 text-sm text-red-600 font-medium">{hotelsError}</p>
+          </div>}
           {validationError && <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
             <i className="pi pi-exclamation-circle text-red-600" />
             <p className="m-0 text-sm text-red-600 font-medium">{validationError}</p>
@@ -290,12 +407,14 @@ function CreateBookingDialog({
     id="user"
     value={selectedUser}
     onChange={(e) => setSelectedUser(e.value)}
-    options={mockUsers}
+    options={users}
     optionLabel="name"
-    placeholder="Select a guest"
+    placeholder={usersLoading ? "Loading guests..." : "Select a guest"}
     className="w-full"
     filter
+    disabled={usersLoading}
   />
+            {usersError && <p className="m-0 text-sm text-red-600 font-medium">{usersError}</p>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">

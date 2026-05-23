@@ -39,28 +39,68 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --app-bg: #f3f6fb;
+  --app-surface: #ffffff;
+  --app-surface-elevated: #ffffff;
+  --app-surface-soft: #f8fafc;
+  --app-surface-muted: #f1f5f9;
+  --app-border: #e2e8f0;
+  --app-border-strong: #cbd5e1;
+  --app-heading: #0f172a;
+  --app-text: #334155;
+  --app-text-muted: #64748b;
+  --app-placeholder: #64748b;
+  --app-primary: #2563eb;
+  --app-primary-hover: #1d4ed8;
+  --app-primary-soft: #eff6ff;
+  --app-primary-border: #bfdbfe;
+  --app-primary-text: #1d4ed8;
+  --app-control-bg: #ffffff;
+  --app-control-hover: #f8fafc;
+  --app-control-disabled: #f1f5f9;
+  --app-focus-ring: rgb(37 99 235 / 0.14);
+  --app-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
+  --app-shadow-md: 0 10px 25px rgb(15 23 42 / 0.14);
+  --app-overlay: rgb(15 23 42 / 0.4);
+  --app-success-bg: #dcfce7;
+  --app-success-border: #bbf7d0;
+  --app-success-text: #15803d;
+  --app-danger-bg: #fee2e2;
+  --app-danger-border: #fecaca;
+  --app-danger-text: #b91c1c;
+  --app-warning-bg: #fef3c7;
+  --app-warning-border: #fde68a;
+  --app-warning-text: #b45309;
+  --app-info-bg: #dbeafe;
+  --app-info-border: #bfdbfe;
+  --app-info-text: #1d4ed8;
+  --app-purple-bg: #f3e8ff;
+  --app-purple-border: #e9d5ff;
+  --app-purple-text: #7e22ce;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.269 0 0);
-  --input: oklch(0.269 0 0);
-  --ring: oklch(0.439 0 0);
+  --background: #0b1120;
+  --foreground: #e5edf8;
+  --card: #111827;
+  --card-foreground: #e5edf8;
+  --popover: #111827;
+  --popover-foreground: #e5edf8;
+  --primary: #60a5fa;
+  --primary-foreground: #08111f;
+  --secondary: #1e293b;
+  --secondary-foreground: #e5edf8;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #263449;
+  --input: #111827;
+  --input-background: #111827;
+  --switch-background: #334155;
+  --ring: #60a5fa;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: oklch(0.488 0.243 264.376);
@@ -76,6 +116,44 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(0.269 0 0);
   --sidebar-ring: oklch(0.439 0 0);
+  --app-bg: #0b1120;
+  --app-surface: #111827;
+  --app-surface-elevated: #172033;
+  --app-surface-soft: #0f172a;
+  --app-surface-muted: #1e293b;
+  --app-border: #263449;
+  --app-border-strong: #334155;
+  --app-heading: #f8fafc;
+  --app-text: #dbe7f5;
+  --app-text-muted: #94a3b8;
+  --app-placeholder: #7c8aa2;
+  --app-primary: #60a5fa;
+  --app-primary-hover: #93c5fd;
+  --app-primary-soft: rgb(37 99 235 / 0.16);
+  --app-primary-border: rgb(96 165 250 / 0.32);
+  --app-primary-text: #bfdbfe;
+  --app-control-bg: #0f172a;
+  --app-control-hover: #172033;
+  --app-control-disabled: #1e293b;
+  --app-focus-ring: rgb(96 165 250 / 0.2);
+  --app-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.22);
+  --app-shadow-md: 0 18px 36px rgb(0 0 0 / 0.42);
+  --app-overlay: rgb(2 6 23 / 0.72);
+  --app-success-bg: rgb(34 197 94 / 0.14);
+  --app-success-border: rgb(74 222 128 / 0.28);
+  --app-success-text: #86efac;
+  --app-danger-bg: rgb(239 68 68 / 0.14);
+  --app-danger-border: rgb(248 113 113 / 0.28);
+  --app-danger-text: #fca5a5;
+  --app-warning-bg: rgb(245 158 11 / 0.14);
+  --app-warning-border: rgb(251 191 36 / 0.28);
+  --app-warning-text: #fcd34d;
+  --app-info-bg: rgb(59 130 246 / 0.16);
+  --app-info-border: rgb(96 165 250 / 0.3);
+  --app-info-text: #bfdbfe;
+  --app-purple-bg: rgb(168 85 247 / 0.16);
+  --app-purple-border: rgb(192 132 252 / 0.3);
+  --app-purple-text: #d8b4fe;
 }
 
 @theme inline {
@@ -286,6 +364,47 @@
   flex-wrap: wrap;
 }
 
+.bookings-toolbar {
+  display: block;
+}
+
+.bookings-toolbar-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookings-create-action {
+  flex: 0 0 auto;
+}
+
+.bookings-filter-bar {
+  display: grid;
+  grid-template-columns:
+    minmax(10rem, 0.8fr)
+    minmax(19rem, 1.6fr)
+    minmax(10rem, 0.85fr)
+    repeat(3, minmax(12.75rem, 1fr))
+    auto;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.bookings-filter-bar .module-filter,
+.bookings-filter-bar .module-search,
+.bookings-filter-bar .module-compact-input,
+.bookings-filter-bar .module-date-filter {
+  width: 100%;
+  min-width: 0;
+}
+
+.bookings-clear-action {
+  justify-self: start;
+  white-space: nowrap;
+}
+
 .module-search {
   position: relative;
   display: block;
@@ -320,6 +439,23 @@
 
 .module-primary-action .p-button-icon {
   margin-right: 0.5rem;
+}
+
+.module-secondary-action {
+  height: 2.5rem;
+  border: 1px solid rgb(203 213 225) !important;
+  border-radius: 8px !important;
+  background: #ffffff !important;
+  color: rgb(71 85 105) !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  padding: 0 0.875rem !important;
+}
+
+.module-secondary-action:hover {
+  border-color: rgb(148 163 184) !important;
+  background: rgb(248 250 252) !important;
+  color: rgb(15 23 42) !important;
 }
 
 .module-search-icon {
@@ -365,6 +501,35 @@
 
 .module-search:focus-within .module-search-icon {
   color: rgb(37 99 235);
+}
+
+.module-compact-input {
+  height: 2.5rem;
+  width: 10.5rem;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+  color: rgb(15 23 42);
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.module-compact-input::placeholder {
+  color: rgb(100 116 139);
+  opacity: 1;
+}
+
+.module-compact-input:hover {
+  border-color: rgb(148 163 184);
+}
+
+.module-compact-input:focus {
+  border-color: rgb(37 99 235);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.14);
 }
 
 .module-filter {
@@ -421,6 +586,66 @@
 .module-filter .p-dropdown-trigger {
   width: 2.25rem;
   color: rgb(71 85 105);
+}
+
+.module-date-filter {
+  width: 11.75rem;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.module-date-filter .p-inputtext,
+.module-date-input {
+  flex: 1 1 auto;
+  height: 2.5rem;
+  width: auto;
+  min-width: 0;
+  border: 1px solid rgb(203 213 225);
+  border-radius: 8px 0 0 8px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+  color: rgb(15 23 42);
+  padding-left: 0.875rem;
+  padding-right: 0.875rem;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.module-date-filter .p-inputtext::placeholder,
+.module-date-input::placeholder {
+  color: rgb(100 116 139);
+  opacity: 1;
+}
+
+.module-date-filter:not(.p-disabled):hover .p-inputtext {
+  border-color: rgb(148 163 184);
+}
+
+.module-date-filter.p-focus .p-inputtext,
+.module-date-filter .p-inputtext:focus {
+  border-color: rgb(37 99 235);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.14);
+}
+
+.module-date-filter .p-button {
+  flex: 0 0 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid rgb(203 213 225);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  background: #ffffff;
+  color: rgb(71 85 105);
+}
+
+.module-date-filter:not(.p-disabled):hover .p-button {
+  border-color: rgb(148 163 184);
+}
+
+.module-date-filter.p-focus .p-button,
+.module-date-filter:focus-within .p-button {
+  border-color: rgb(37 99 235);
 }
 
 .module-table-shell {
@@ -588,7 +813,9 @@
   }
 
   .module-search,
-  .module-filter {
+  .module-filter,
+  .module-compact-input,
+  .module-date-filter {
     width: 100%;
   }
 
@@ -596,8 +823,44 @@
     width: 100%;
   }
 
+  .bookings-toolbar-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .dashboard-table .p-paginator {
     justify-content: center;
+  }
+}
+
+@media (max-width: 1500px) {
+  .bookings-filter-bar {
+    grid-template-columns:
+      minmax(10rem, 0.8fr)
+      minmax(18rem, 1.6fr)
+      minmax(10rem, 0.9fr)
+      repeat(2, minmax(12rem, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .bookings-filter-bar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bookings-clear-action {
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 700px) {
+  .bookings-filter-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .bookings-create-action,
+  .bookings-clear-action {
+    width: 100%;
   }
 }
 
@@ -803,9 +1066,701 @@
   transform: translateY(-2px) !important;
 }
 
-/* PrimeReact Tag styling */
+.status-tag {
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+  font-weight: 700 !important;
+  gap: 0.375rem !important;
+  padding: 0.375rem 0.625rem !important;
+}
+
+.status-tag-active {
+  background: rgb(220 252 231) !important;
+  border-color: rgb(187 247 208) !important;
+  color: rgb(21 128 61) !important;
+}
+
+.status-tag-inactive {
+  background: rgb(254 226 226) !important;
+  border-color: rgb(254 202 202) !important;
+  color: rgb(185 28 28) !important;
+}
+
+.availability-tag {
+  background: rgb(241 245 249) !important;
+  border: 1px solid rgb(226 232 240) !important;
+  border-radius: 999px !important;
+  color: rgb(51 65 85) !important;
+  font-weight: 700 !important;
+  gap: 0.375rem !important;
+  padding: 0.375rem 0.625rem !important;
+}
+
+.booking-status {
+  border-radius: 999px !important;
+  border: 1px solid transparent !important;
+  font-weight: 700 !important;
+  gap: 0.375rem !important;
+  padding: 0.375rem 0.625rem !important;
+}
+
+.booking-status-confirmed {
+  background: rgb(219 234 254) !important;
+  border-color: rgb(191 219 254) !important;
+  color: rgb(29 78 216) !important;
+}
+
+.booking-status-pending {
+  background: rgb(254 243 199) !important;
+  border-color: rgb(253 230 138) !important;
+  color: rgb(180 83 9) !important;
+}
+
+.booking-status-completed {
+  background: rgb(220 252 231) !important;
+  border-color: rgb(187 247 208) !important;
+  color: rgb(21 128 61) !important;
+}
+
+.booking-status-cancelled {
+  background: rgb(254 226 226) !important;
+  border-color: rgb(254 202 202) !important;
+  color: rgb(185 28 28) !important;
+}
+
+/* App theme system */
+html {
+  background: var(--app-bg);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+body {
+  background: var(--app-bg) !important;
+  color: var(--app-text) !important;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, var(--app-primary-soft), transparent 26rem),
+    var(--app-bg);
+  color: var(--app-text);
+  transition:
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.app-header {
+  border-bottom: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-surface) 92%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.app-header-inner {
+  display: flex;
+  min-height: 5rem;
+  max-width: 1800px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.app-brand-block {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.app-brand-icon {
+  display: inline-flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--app-primary-border);
+  border-radius: 8px;
+  background: var(--app-primary);
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgb(37 99 235 / 0.16);
+}
+
+.app-brand-copy {
+  min-width: 0;
+}
+
+.app-title {
+  overflow: hidden;
+  margin: 0;
+  color: var(--app-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--app-text-muted);
+  font-size: 0.875rem;
+}
+
+.app-main {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.theme-toggle-button {
+  display: inline-flex;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 8px;
+  background: var(--app-control-bg);
+  color: var(--app-text);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0 0.875rem;
+  white-space: nowrap;
+  box-shadow: var(--app-shadow-sm);
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.theme-toggle-button:hover {
+  border-color: var(--app-primary-border);
+  background: var(--app-primary-soft);
+  color: var(--app-primary-text);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-button:focus-visible {
+  outline: 0;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px var(--app-focus-ring);
+}
+
+.dashboard-tabs .p-tabview-nav-container {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+}
+
+.dashboard-tabs .p-tabview-nav {
+  background: transparent !important;
+}
+
+.dashboard-tabs .p-tabview-nav li .p-tabview-nav-link {
+  background: transparent !important;
+  color: var(--app-text-muted) !important;
+}
+
+.dashboard-tabs .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+  background: var(--app-primary-soft) !important;
+  color: var(--app-primary-text) !important;
+}
+
+.dashboard-tabs .p-tabview-nav li:not(.p-highlight) .p-tabview-nav-link:hover {
+  background: var(--app-control-hover) !important;
+  color: var(--app-heading) !important;
+}
+
+.dashboard-tabs .p-tabview-panels,
+.module-table-shell {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+}
+
+.module-toolbar {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+}
+
+.module-eyebrow {
+  color: var(--app-primary) !important;
+}
+
+.module-title {
+  color: var(--app-heading) !important;
+}
+
+.module-summary {
+  color: var(--app-text-muted) !important;
+}
+
+.module-error {
+  color: var(--app-danger-text) !important;
+}
+
+.module-primary-action,
+.dialog-primary-button,
+.p-dialog .p-button:not(.p-button-outlined) {
+  background: var(--app-primary) !important;
+  color: #ffffff !important;
+}
+
+.module-primary-action:hover,
+.dialog-primary-button:hover,
+.p-dialog .p-button:not(.p-button-outlined):hover {
+  background: var(--app-primary-hover) !important;
+}
+
+.module-primary-action:focus,
+.dialog-primary-button:focus,
+.p-dialog .p-button:focus {
+  box-shadow: 0 0 0 3px var(--app-focus-ring) !important;
+}
+
+.module-secondary-action,
+.dialog-secondary-button,
+.p-dialog .p-button.p-button-outlined {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-bg) !important;
+  color: var(--app-text) !important;
+}
+
+.module-secondary-action:hover,
+.dialog-secondary-button:hover,
+.p-dialog .p-button.p-button-outlined:hover {
+  border-color: var(--app-primary-border) !important;
+  background: var(--app-control-hover) !important;
+  color: var(--app-heading) !important;
+}
+
+.module-search-icon,
+.module-filter .p-dropdown-trigger,
+.module-date-filter .p-button {
+  color: var(--app-text-muted) !important;
+}
+
+.module-search-input,
+.module-compact-input,
+.module-filter,
+.module-date-filter .p-inputtext,
+.module-date-input,
+.module-date-filter .p-button {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-bg) !important;
+  color: var(--app-heading) !important;
+  box-shadow: var(--app-shadow-sm) !important;
+}
+
+.module-search-input::placeholder,
+.module-compact-input::placeholder,
+.module-date-filter .p-inputtext::placeholder,
+.module-date-input::placeholder {
+  color: var(--app-placeholder) !important;
+}
+
+.module-search-input:hover,
+.module-compact-input:hover,
+.module-filter:not(.p-disabled):hover,
+.module-date-filter:not(.p-disabled):hover .p-inputtext,
+.module-date-filter:not(.p-disabled):hover .p-button {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-hover) !important;
+}
+
+.module-search-input:focus,
+.module-compact-input:focus,
+.module-filter.p-focus,
+.module-date-filter.p-focus .p-inputtext,
+.module-date-filter .p-inputtext:focus {
+  border-color: var(--app-primary) !important;
+  box-shadow: 0 0 0 3px var(--app-focus-ring) !important;
+}
+
+.module-search:focus-within .module-search-icon {
+  color: var(--app-primary) !important;
+}
+
+.module-filter .p-dropdown-label {
+  color: var(--app-heading) !important;
+}
+
+.module-filter .p-dropdown-label.p-placeholder {
+  color: var(--app-placeholder) !important;
+}
+
+.dashboard-table .p-datatable-wrapper,
+.dashboard-table .p-datatable-table,
+.dashboard-table .p-datatable-tbody,
+.dashboard-table .p-datatable-loading-overlay {
+  background: var(--app-surface) !important;
+  color: var(--app-text) !important;
+}
+
+.dashboard-table .p-datatable-thead > tr > th {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface-soft) !important;
+  color: var(--app-text) !important;
+}
+
+.dashboard-table .p-sortable-column-icon,
+.dashboard-table .p-column-filter-menu-button {
+  color: var(--app-text-muted) !important;
+}
+
+.dashboard-table .p-datatable-tbody > tr {
+  background: var(--app-surface) !important;
+  color: var(--app-text) !important;
+}
+
+.dashboard-table.p-datatable-striped .p-datatable-tbody > tr.p-row-odd,
+.dashboard-table .p-datatable-tbody > tr:nth-child(even) {
+  background: color-mix(in srgb, var(--app-surface-soft) 72%, var(--app-surface)) !important;
+}
+
+.dashboard-table .p-datatable-tbody > tr > td {
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.dashboard-table .p-datatable-tbody > tr:hover {
+  background: var(--app-control-hover) !important;
+}
+
+.dashboard-table .p-datatable-emptymessage > td {
+  color: var(--app-text-muted) !important;
+}
+
+.dashboard-table .p-paginator {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+  color: var(--app-text) !important;
+}
+
+.dashboard-table .p-paginator button,
+.dashboard-table .p-paginator .p-dropdown {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--app-text-muted) !important;
+}
+
+.dashboard-table .p-paginator button:not(.p-disabled):hover,
+.dashboard-table .p-paginator .p-paginator-page.p-highlight {
+  background: var(--app-primary-soft) !important;
+  color: var(--app-primary-text) !important;
+}
+
+.dashboard-table .p-paginator .p-dropdown {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-bg) !important;
+}
+
+.p-dropdown-panel,
+.p-multiselect-panel,
+.p-datepicker,
+.p-datepicker .p-datepicker-header {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface-elevated) !important;
+  color: var(--app-text) !important;
+  box-shadow: var(--app-shadow-md) !important;
+}
+
+.p-dropdown-panel .p-dropdown-items,
+.p-dropdown-panel .p-dropdown-item,
+.p-datepicker table td,
+.p-datepicker table th,
+.p-datepicker .p-monthpicker,
+.p-datepicker .p-yearpicker {
+  background: transparent !important;
+  color: var(--app-text) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item:not(.p-highlight):not(.p-disabled):hover,
+.p-datepicker table td > span:not(.p-highlight):not(.p-disabled):hover,
+.p-datepicker .p-monthpicker .p-monthpicker-month:not(.p-disabled):not(.p-highlight):hover,
+.p-datepicker .p-yearpicker .p-yearpicker-year:not(.p-disabled):not(.p-highlight):hover {
+  background: var(--app-control-hover) !important;
+  color: var(--app-heading) !important;
+}
+
+.p-dropdown-panel .p-dropdown-item.p-highlight,
+.p-datepicker table td > span.p-highlight,
+.p-datepicker .p-monthpicker .p-monthpicker-month.p-highlight,
+.p-datepicker .p-yearpicker .p-yearpicker-year.p-highlight {
+  background: var(--app-primary-soft) !important;
+  color: var(--app-primary-text) !important;
+}
+
+.p-dropdown-panel .p-dropdown-filter,
+.p-datepicker .p-datepicker-header button,
+.p-datepicker .p-datepicker-title .p-datepicker-month,
+.p-datepicker .p-datepicker-title .p-datepicker-year {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-bg) !important;
+  color: var(--app-heading) !important;
+}
+
+.p-datepicker .p-datepicker-header button:hover {
+  background: var(--app-control-hover) !important;
+  color: var(--app-primary-text) !important;
+}
+
+.p-dialog,
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-card,
+.p-card .p-card-body,
+.p-card .p-card-content {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface-elevated) !important;
+  color: var(--app-text) !important;
+}
+
+.p-dialog .p-dialog-header {
+  border-color: var(--app-border) !important;
+}
+
+.p-dialog .p-dialog-header .p-dialog-title,
+.p-dialog h1,
+.p-dialog h2,
+.p-dialog h3,
+.p-dialog h4,
+.p-dialog label,
+.p-dialog .font-semibold {
+  color: var(--app-heading) !important;
+}
+
+.p-dialog .p-dialog-header .p-dialog-close-icon,
+.p-dialog .p-dialog-header .p-dialog-close {
+  color: var(--app-text-muted) !important;
+}
+
+.p-dialog .p-dialog-header .p-dialog-close:hover {
+  background: var(--app-control-hover) !important;
+  color: var(--app-heading) !important;
+}
+
+.p-dialog .p-inputtext,
+.p-dialog .p-dropdown,
+.p-dialog .p-inputnumber-input,
+.p-dialog .p-calendar .p-inputtext,
+.p-dialog .p-calendar .p-button {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-bg) !important;
+  color: var(--app-heading) !important;
+}
+
+.p-dialog .p-inputtext::placeholder,
+.p-dialog .p-dropdown-label.p-placeholder {
+  color: var(--app-placeholder) !important;
+}
+
+.p-dialog .p-inputtext:hover,
+.p-dialog .p-dropdown:not(.p-disabled):hover,
+.p-dialog .p-calendar:not(.p-disabled):hover .p-inputtext,
+.p-dialog .p-calendar:not(.p-disabled):hover .p-button {
+  border-color: var(--app-border-strong) !important;
+  background: var(--app-control-hover) !important;
+}
+
+.p-dialog .p-inputtext:focus,
+.p-dialog .p-dropdown.p-focus,
+.p-dialog .p-calendar:focus-within .p-inputtext {
+  border-color: var(--app-primary) !important;
+  box-shadow: 0 0 0 3px var(--app-focus-ring) !important;
+}
+
+.p-dialog-mask {
+  background-color: var(--app-overlay) !important;
+}
+
+.p-divider::before {
+  border-color: var(--app-border) !important;
+}
+
+.hotel-card {
+  border-color: var(--app-border) !important;
+  background: var(--app-surface) !important;
+}
+
+.hotel-card h3 {
+  color: var(--app-heading) !important;
+}
+
+.hotel-card p {
+  color: var(--app-text-muted) !important;
+}
+
+.hotel-card:hover {
+  border-color: var(--app-primary-border) !important;
+  box-shadow: 0 14px 30px rgb(37 99 235 / 0.16) !important;
+}
+
+.p-rating .p-rating-item .p-rating-icon {
+  color: var(--app-border-strong) !important;
+}
+
+.p-rating .p-rating-item.p-rating-item-active .p-rating-icon,
+.p-rating .p-rating-item.p-focus .p-rating-icon {
+  color: var(--app-warning-text) !important;
+}
+
 .p-tag {
-  background: rgb(220, 252, 231) !important;
-  color: rgb(21, 128, 61) !important;
-  border: 0 !important;
+  border: 1px solid var(--app-border) !important;
+  border-radius: 999px !important;
+  background: var(--app-surface-muted) !important;
+  color: var(--app-text) !important;
+  font-weight: 700 !important;
+}
+
+.p-tag.p-tag-success {
+  border-color: var(--app-success-border) !important;
+  background: var(--app-success-bg) !important;
+  color: var(--app-success-text) !important;
+}
+
+.p-tag.p-tag-info {
+  border-color: var(--app-info-border) !important;
+  background: var(--app-info-bg) !important;
+  color: var(--app-info-text) !important;
+}
+
+.metric-pill-blue {
+  background: var(--app-info-bg) !important;
+  color: var(--app-info-text) !important;
+}
+
+.metric-pill-green,
+.status-tag-active,
+.booking-status-completed {
+  background: var(--app-success-bg) !important;
+  border-color: var(--app-success-border) !important;
+  color: var(--app-success-text) !important;
+}
+
+.metric-pill-purple {
+  background: var(--app-purple-bg) !important;
+  color: var(--app-purple-text) !important;
+}
+
+.status-tag-inactive,
+.booking-status-cancelled {
+  background: var(--app-danger-bg) !important;
+  border-color: var(--app-danger-border) !important;
+  color: var(--app-danger-text) !important;
+}
+
+.availability-tag {
+  background: var(--app-surface-muted) !important;
+  border-color: var(--app-border) !important;
+  color: var(--app-text) !important;
+}
+
+.booking-status-confirmed {
+  background: var(--app-info-bg) !important;
+  border-color: var(--app-info-border) !important;
+  color: var(--app-info-text) !important;
+}
+
+.booking-status-pending {
+  background: var(--app-warning-bg) !important;
+  border-color: var(--app-warning-border) !important;
+  color: var(--app-warning-text) !important;
+}
+
+.app-shell .bg-white,
+.p-dialog .bg-white {
+  background-color: var(--app-surface) !important;
+}
+
+.app-shell .bg-blue-50,
+.p-dialog .bg-blue-50 {
+  background-color: var(--app-info-bg) !important;
+}
+
+.app-shell .bg-red-50,
+.p-dialog .bg-red-50 {
+  background-color: var(--app-danger-bg) !important;
+}
+
+.app-shell .border-slate-100,
+.app-shell .border-slate-200,
+.app-shell .border-red-200,
+.p-dialog .border-slate-100,
+.p-dialog .border-slate-200,
+.p-dialog .border-red-200 {
+  border-color: var(--app-border) !important;
+}
+
+.app-shell .text-slate-950,
+.app-shell .text-slate-900,
+.app-shell .text-gray-900,
+.p-dialog .text-slate-950,
+.p-dialog .text-slate-900,
+.p-dialog .text-gray-900 {
+  color: var(--app-heading) !important;
+}
+
+.app-shell .text-slate-600,
+.app-shell .text-slate-500,
+.app-shell .text-gray-600,
+.p-dialog .text-slate-600,
+.p-dialog .text-slate-500,
+.p-dialog .text-gray-600 {
+  color: var(--app-text-muted) !important;
+}
+
+.app-shell .text-slate-300,
+.p-dialog .text-slate-300 {
+  color: var(--app-border-strong) !important;
+}
+
+.app-shell .text-blue-600,
+.p-dialog .text-blue-600 {
+  color: var(--app-primary) !important;
+}
+
+.app-shell .text-green-600,
+.p-dialog .text-green-600 {
+  color: var(--app-success-text) !important;
+}
+
+.app-shell .text-red-600,
+.p-dialog .text-red-600 {
+  color: var(--app-danger-text) !important;
+}
+
+@media (min-width: 640px) {
+  .app-header-inner,
+  .app-main {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-header-inner,
+  .app-main {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header-inner {
+    align-items: stretch;
+    flex-direction: column;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .theme-toggle-button {
+    width: 100%;
+  }
 }

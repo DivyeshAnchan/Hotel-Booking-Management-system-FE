@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { InputText } from "primereact/inputtext";
@@ -6,79 +6,243 @@ import { Dropdown } from "primereact/dropdown";
 import { Rating } from "primereact/rating";
 import { Tag } from "primereact/tag";
 
-function HotelsModule({ hotels }) {
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+const sortFieldMap = {
+  name: "name",
+  rating: "rating",
+  totalBooked: "totalBooked",
+  availableRooms: "availableRooms",
+  createdAt: "createdAt"
+};
+
+const ratingOptions = [
+  { label: "All Ratings", value: null },
+  { label: "4+ Stars", value: 4 },
+  { label: "4.5+ Stars", value: 4.5 }
+];
+
+const statusOptions = [
+  { label: "All Status", value: null },
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" }
+];
+
+function mapHotelFromApi(hotel) {
+  return {
+    id: hotel._id || hotel.id,
+    name: hotel.name || "",
+    location: hotel.location || "",
+    phoneNumber: hotel.phone || hotel.phoneNumber || "",
+    state: hotel.state || "",
+    city: hotel.city || "",
+    country: hotel.country || "",
+    rating: hotel.rating ?? 0,
+    pricePerNight: hotel.pricePerNight ?? 0,
+    totalBooked: hotel.totalBooked ?? 0,
+    availableRooms: hotel.availableRooms ?? 0,
+    isActive: Boolean(hotel.isActive),
+    createdAt: hotel.createdAt ? new Date(hotel.createdAt) : null
+  };
+}
+
+function HotelsModule() {
+  const [hotels, setHotels] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedState, setSelectedState] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [ratingFilter, setRatingFilter] = useState(null);
-
-  const states = Array.from(new Set(hotels.map((hotel) => hotel.state))).sort();
-  const cities = Array.from(
-    new Set(
-      hotels
-        .filter((hotel) => !selectedState || hotel.state === selectedState)
-        .map((hotel) => hotel.city)
-    )
-  ).sort();
-  const ratingOptions = [
-    { label: "All Ratings", value: null },
-    { label: "4+ Stars", value: 4 },
-    { label: "4.5+ Stars", value: 4.5 }
-  ];
-
-  const filteredHotels = hotels.filter((hotel) => {
-    if (selectedState && hotel.state !== selectedState) return false;
-    if (selectedCity && hotel.city !== selectedCity) return false;
-    if (ratingFilter && hotel.rating < ratingFilter) return false;
-    return true;
+  const [statusFilter, setStatusFilter] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState(-1);
+  const [pagination, setPagination] = useState({
+    totalItems: 0,
+    currentPage: 1,
+    totalPages: 1,
+    limit: 10,
+    hasNextPage: false,
+    hasPreviousPage: false
+  });
+  const [filterOptions, setFilterOptions] = useState({
+    states: [],
+    cities: []
   });
 
-  const availableRooms = filteredHotels.reduce(
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setFirst(0);
+      setDebouncedSearch(globalFilter.trim());
+    }, 350);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [globalFilter]);
+
+  const requestParams = useMemo(() => {
+    const page = Math.floor(first / rows) + 1;
+    const backendSortField = sortFieldMap[sortField] || "createdAt";
+    const backendSortOrder = sortOrder === 1 ? "asc" : "desc";
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(rows),
+      sortBy: backendSortField,
+      sortOrder: backendSortOrder
+    });
+
+    if (debouncedSearch) params.set("search", debouncedSearch);
+    if (isActiveFilterValue(selectedState)) params.set("state", selectedState);
+    if (isActiveFilterValue(selectedCity)) params.set("city", selectedCity);
+    if (isActiveFilterValue(ratingFilter)) params.set("rating", String(ratingFilter));
+    if (isActiveFilterValue(statusFilter)) params.set("status", statusFilter);
+
+    return params;
+  }, [
+    debouncedSearch,
+    first,
+    ratingFilter,
+    rows,
+    selectedCity,
+    selectedState,
+    sortField,
+    sortOrder,
+    statusFilter
+  ]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function loadHotels() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/hotels?${requestParams}`, {
+          signal: controller.signal
+        });
+        const json = await response.json();
+
+        if (!response.ok || !json.success) {
+          throw new Error(json.message || "Failed to fetch hotels");
+        }
+
+        const mappedHotels = Array.isArray(json.data)
+          ? json.data.map(mapHotelFromApi)
+          : [];
+
+        setHotels(mappedHotels);
+        setPagination({
+          totalItems: json.pagination?.totalItems ?? 0,
+          currentPage: json.pagination?.currentPage ?? 1,
+          totalPages: json.pagination?.totalPages ?? 1,
+          limit: json.pagination?.limit ?? rows,
+          hasNextPage: Boolean(json.pagination?.hasNextPage),
+          hasPreviousPage: Boolean(json.pagination?.hasPreviousPage)
+        });
+        setFilterOptions((currentOptions) => ({
+          states: mergeUniqueOptions(
+            currentOptions.states,
+            mappedHotels.map((hotel) => hotel.state)
+          ),
+          cities: mergeUniqueOptions(
+            currentOptions.cities,
+            mappedHotels.map((hotel) => hotel.city)
+          )
+        }));
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setHotels([]);
+        setPagination((currentPagination) => ({
+          ...currentPagination,
+          totalItems: 0
+        }));
+        setError(err.message || "Failed to fetch hotels");
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadHotels();
+
+    return () => controller.abort();
+  }, [requestParams]);
+
+  const availableRooms = hotels.reduce(
     (sum, hotel) => sum + hotel.availableRooms,
     0
   );
+
+  const stateOptions = [
+    { label: "All States", value: null },
+    ...filterOptions.states.map((state) => ({ label: state, value: state }))
+  ];
+  const cityOptions = [
+    { label: "All Cities", value: null },
+    ...filterOptions.cities.map((city) => ({ label: city, value: city }))
+  ];
 
   const ratingBodyTemplate = (rowData) => {
     return <Rating value={rowData.rating} readOnly cancel={false} />;
   };
 
-  const roomTypesBodyTemplate = (rowData) => {
-    const visibleRoomTypes = rowData.roomTypes.slice(0, 2);
-    const hiddenCount = rowData.roomTypes.length - visibleRoomTypes.length;
-
-    return (
-      <div className="flex flex-wrap gap-1">
-        {visibleRoomTypes.map((type) => (
-          <Tag key={type} value={type} severity="info" />
-        ))}
-        {hiddenCount > 0 && <Tag value={`+${hiddenCount}`} severity="secondary" />}
-      </div>
-    );
-  };
-
   const availabilityBodyTemplate = (rowData) => {
-    const severity =
-      rowData.availableRooms > 20
-        ? "success"
-        : rowData.availableRooms > 10
-          ? "warning"
-          : "danger";
-
     return (
       <Tag
         value={`${rowData.availableRooms} rooms`}
-        severity={severity}
         icon="pi pi-home"
+        className="availability-tag"
+      />
+    );
+  };
+
+  const priceBodyTemplate = (rowData) => {
+    return (
+      <span className="font-semibold">
+        ₹{rowData.pricePerNight.toLocaleString("en-IN")}
+      </span>
+    );
+  };
+
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <Tag
+        value={rowData.isActive ? "Active" : "Inactive"}
+        icon={rowData.isActive ? "pi pi-check-circle" : "pi pi-times-circle"}
+        className={rowData.isActive ? "status-tag status-tag-active" : "status-tag status-tag-inactive"}
       />
     );
   };
 
   const dateBodyTemplate = (rowData) => {
-    return rowData.joinedDate.toLocaleDateString("en-US", {
+    if (!rowData.createdAt) return "—";
+
+    return rowData.createdAt.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric"
     });
+  };
+
+  const handlePage = (event) => {
+    setFirst(event.first);
+    setRows(event.rows);
+  };
+
+  const handleSort = (event) => {
+    setSortField(event.sortField || "createdAt");
+    setSortOrder(event.sortOrder || -1);
+    setFirst(0);
+  };
+
+  const resetPageAndSetState = (setter, value) => {
+    setFirst(0);
+    setter(value);
   };
 
   return (
@@ -88,8 +252,9 @@ function HotelsModule({ hotels }) {
           <div className="module-eyebrow">Hotels</div>
           <h2 className="module-title">Hotels Management</h2>
           <p className="module-summary">
-            {filteredHotels.length} hotels · {availableRooms} rooms available
+            {pagination.totalItems} hotels · {availableRooms} rooms on this page
           </p>
+          {error && <p className="module-error">{error}</p>}
         </div>
 
         <div className="module-controls">
@@ -106,33 +271,42 @@ function HotelsModule({ hotels }) {
           <Dropdown
             value={selectedState}
             onChange={(event) => {
-              setSelectedState(event.value);
               setSelectedCity(null);
+              resetPageAndSetState(setSelectedState, event.value);
             }}
-            options={[
-              { label: "All States", value: null },
-              ...states.map((state) => ({ label: state, value: state }))
-            ]}
+            options={stateOptions}
+            optionLabel="label"
+            optionValue="value"
             placeholder="State"
             className="module-filter"
             showClear
           />
           <Dropdown
             value={selectedCity}
-            onChange={(event) => setSelectedCity(event.value)}
-            options={[
-              { label: "All Cities", value: null },
-              ...cities.map((city) => ({ label: city, value: city }))
-            ]}
+            onChange={(event) => resetPageAndSetState(setSelectedCity, event.value)}
+            options={cityOptions}
+            optionLabel="label"
+            optionValue="value"
             placeholder="City"
             className="module-filter"
             showClear
           />
           <Dropdown
             value={ratingFilter}
-            onChange={(event) => setRatingFilter(event.value)}
+            onChange={(event) => resetPageAndSetState(setRatingFilter, event.value)}
             options={ratingOptions}
+            optionLabel="label"
+            optionValue="value"
             placeholder="Rating"
+            className="module-filter"
+          />
+          <Dropdown
+            value={statusFilter}
+            onChange={(event) => resetPageAndSetState(setStatusFilter, event.value)}
+            options={statusOptions}
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
             className="module-filter"
           />
         </div>
@@ -140,17 +314,24 @@ function HotelsModule({ hotels }) {
 
       <div className="module-table-shell">
         <DataTable
-          value={filteredHotels}
+          value={hotels}
+          lazy
           paginator
-          rows={10}
+          first={first}
+          rows={rows}
+          totalRecords={pagination.totalItems}
           rowsPerPageOptions={[5, 10, 25, 50]}
-          globalFilter={globalFilter}
-          emptyMessage="No hotels found."
+          loading={loading}
+          emptyMessage={loading ? "Loading hotels..." : "No hotels found."}
           className="dashboard-table p-datatable-sm"
           stripedRows
-          sortMode="multiple"
-          removableSort
+          sortField={sortField}
+          sortOrder={sortOrder}
+          onPage={handlePage}
+          onSort={handleSort}
+          removableSort={false}
           responsiveLayout="scroll"
+          dataKey="id"
         >
           <Column
             field="name"
@@ -159,21 +340,23 @@ function HotelsModule({ hotels }) {
             style={{ minWidth: "15rem" }}
           />
           <Column
+            field="location"
+            header="Location"
+            style={{ minWidth: "12rem" }}
+          />
+          <Column
             field="phoneNumber"
             header="Phone"
-            sortable
             style={{ minWidth: "12rem" }}
           />
           <Column
             field="state"
             header="State"
-            sortable
             style={{ minWidth: "10rem" }}
           />
           <Column
             field="city"
             header="City"
-            sortable
             style={{ minWidth: "10rem" }}
           />
           <Column
@@ -182,6 +365,12 @@ function HotelsModule({ hotels }) {
             sortable
             body={ratingBodyTemplate}
             style={{ minWidth: "12rem" }}
+          />
+          <Column
+            field="pricePerNight"
+            header="Price/Night"
+            body={priceBodyTemplate}
+            style={{ minWidth: "10rem" }}
           />
           <Column
             field="totalBooked"
@@ -202,13 +391,13 @@ function HotelsModule({ hotels }) {
             style={{ minWidth: "11rem" }}
           />
           <Column
-            field="roomTypes"
-            header="Room Types"
-            body={roomTypesBodyTemplate}
-            style={{ minWidth: "14rem" }}
+            field="isActive"
+            header="Status"
+            body={statusBodyTemplate}
+            style={{ minWidth: "10rem" }}
           />
           <Column
-            field="joinedDate"
+            field="createdAt"
             header="Joined"
             sortable
             body={dateBodyTemplate}
@@ -218,6 +407,19 @@ function HotelsModule({ hotels }) {
       </div>
     </section>
   );
+}
+
+function mergeUniqueOptions(existingOptions, nextOptions) {
+  return Array.from(
+    new Set([
+      ...existingOptions,
+      ...nextOptions.filter((option) => Boolean(option))
+    ])
+  ).sort();
+}
+
+function isActiveFilterValue(value) {
+  return value !== null && value !== undefined && value !== "";
 }
 
 export { HotelsModule };
