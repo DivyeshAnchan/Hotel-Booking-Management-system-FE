@@ -23,6 +23,7 @@ function CreateBookingDialog({
   const [checkOutDate, setCheckOutDate] = useState(null);
   const [selectedRoomType, setSelectedRoomType] = useState(null);
   const [numberOfGuests, setNumberOfGuests] = useState(1);
+  const [validationError, setValidationError] = useState("");
   const states = Array.from(new Set(mockHotels.map((h) => h.state))).sort();
   const cities = selectedState ? Array.from(
     new Set(
@@ -42,15 +43,23 @@ function CreateBookingDialog({
     setCheckOutDate(null);
     setSelectedRoomType(null);
     setNumberOfGuests(1);
+    setValidationError("");
   };
   const handleHide = () => {
     resetDialog();
     onHide();
   };
   const handleLocationNext = () => {
-    if (selectedState && selectedCity) {
-      setStep("selectHotel");
+    if (!selectedState) {
+      setValidationError("Please select a state");
+      return;
     }
+    if (!selectedCity) {
+      setValidationError("Please select a city");
+      return;
+    }
+    setValidationError("");
+    setStep("selectHotel");
   };
   const handleHotelSelect = (hotel) => {
     setSelectedHotel(hotel);
@@ -121,76 +130,99 @@ function CreateBookingDialog({
     dismissableMask={step !== "payment"}
     closable={step !== "payment"}
   >
-      {step === "location" && <div className="flex flex-col gap-4 p-4">
+      {step === "location" && <div className="flex flex-col gap-4 p-6 bg-white rounded-xl shadow-sm">
           <div className="flex flex-col gap-2">
-            <label htmlFor="state">State</label>
+            <label htmlFor="state" className="font-semibold text-slate-900">Select State</label>
             <Dropdown
     id="state"
     value={selectedState}
     onChange={(e) => {
       setSelectedState(e.value);
       setSelectedCity(null);
+      setValidationError("");
     }}
     options={states.map((s) => ({ label: s, value: s }))}
-    placeholder="Select a state"
+    placeholder="Choose a state"
+    showClear
     className="w-full"
+    panelClassName="dialog-dropdown-panel"
   />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="city">City</label>
+            <label htmlFor="city" className="font-semibold text-slate-900">Select City</label>
             <Dropdown
     id="city"
     value={selectedCity}
-    onChange={(e) => setSelectedCity(e.value)}
+    onChange={(e) => {
+      setSelectedCity(e.value);
+      setValidationError("");
+    }}
     options={cities.map((c) => ({ label: c, value: c }))}
-    placeholder="Select a city"
+    placeholder="Choose a city"
+    showClear
     className="w-full"
     disabled={!selectedState}
+    panelClassName="dialog-dropdown-panel"
   />
           </div>
+          {validationError && <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200">
+            <i className="pi pi-exclamation-circle text-red-600" />
+            <p className="m-0 text-sm text-red-600 font-medium">{validationError}</p>
+          </div>}
           <Button
     label="Find Hotels"
     icon="pi pi-search"
     onClick={handleLocationNext}
-    disabled={!selectedState || !selectedCity}
-    className="mt-4"
+    className="dialog-primary-button w-full mt-4"
+    size="large"
   />
         </div>}
 
-      {step === "selectHotel" && <div className="flex flex-col gap-4 p-4">
-          {availableHotels.length === 0 ? <div className="text-center p-4">
-              <i className="pi pi-info-circle text-4xl text-gray-400 mb-3" />
-              <p>No hotels available in this location.</p>
-            </div> : <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {availableHotels.map((hotel) => <Card
+      {step === "selectHotel" && <div className="flex flex-col gap-6 p-6 bg-white rounded-xl shadow-sm">
+          {availableHotels.length === 0 ? <div className="text-center p-8">
+              <i className="pi pi-info-circle text-5xl text-slate-300 mb-3 block" />
+              <p className="text-lg text-slate-600 font-medium">No hotels available in this location.</p>
+            </div> : <>
+            <h3 className="text-lg font-semibold text-slate-900 m-0">Available Hotels ({availableHotels.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {availableHotels.map((hotel) => <div
     key={hotel.id}
-    className="cursor-pointer hover:shadow-lg transition-shadow"
+    className="hotel-card cursor-pointer rounded-lg border border-slate-200 bg-white p-5 transition-all duration-200 hover:border-blue-300 hover:shadow-lg hover:-translate-y-1"
     onClick={() => handleHotelSelect(hotel)}
   >
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-start">
-                      <h3 className="m-0">{hotel.name}</h3>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-start gap-3">
+                      <h3 className="m-0 text-base font-semibold text-slate-900 flex-1">{hotel.name}</h3>
                       <Tag
     value={`${hotel.availableRooms} available`}
     severity="success"
+    className="whitespace-nowrap"
   />
                     </div>
-                    <Rating value={hotel.rating} readOnly cancel={false} />
-                    <p className="text-sm text-gray-600 m-0">
-                      {hotel.city}, {hotel.state}
-                    </p>
-                    <p className="text-sm m-0">
-                      <i className="pi pi-phone mr-2" />
-                      {hotel.phoneNumber}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <Rating value={hotel.rating} readOnly cancel={false} />
+                      <span className="text-sm text-slate-600">({hotel.rating.toFixed(1)})</span>
+                    </div>
+                    <div className="border-t border-slate-100 pt-3 flex flex-col gap-2">
+                      <p className="text-sm text-slate-600 m-0">
+                        <i className="pi pi-map-marker mr-2 text-blue-600" />
+                        {hotel.city}, {hotel.state}
+                      </p>
+                      <p className="text-sm text-slate-600 m-0">
+                        <i className="pi pi-phone mr-2 text-blue-600" />
+                        {hotel.phoneNumber}
+                      </p>
+                    </div>
                   </div>
-                </Card>)}
-            </div>}
+                </div>)}
+            </div>
+            </>
+          }
           <Button
     label="Back"
     icon="pi pi-arrow-left"
     onClick={() => setStep("location")}
-    className="p-button-outlined mt-4"
+    className="dialog-secondary-button mt-2"
   />
         </div>}
 
