@@ -39,7 +39,6 @@ function mapHotelFromApi(hotel) {
     city: hotel.city || "",
     country: hotel.country || "",
     rating: hotel.rating ?? 0,
-    pricePerNight: hotel.pricePerNight ?? 0,
     totalBooked: hotel.totalBooked ?? 0,
     availableRooms: hotel.availableRooms ?? 0,
     isActive: Boolean(hotel.isActive),
@@ -73,6 +72,8 @@ function HotelsModule() {
     states: [],
     cities: []
   });
+  const [stateCityOptions, setStateCityOptions] = useState([]);
+  const [cityOptionsLoading, setCityOptionsLoading] = useState(false);
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -173,6 +174,42 @@ function HotelsModule() {
     return () => controller.abort();
   }, [requestParams]);
 
+  useEffect(() => {
+    if (!isActiveFilterValue(selectedState)) {
+      setStateCityOptions([]);
+      setCityOptionsLoading(false);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+
+    async function loadCitiesForState() {
+      setStateCityOptions([]);
+      setCityOptionsLoading(true);
+
+      try {
+        const cities = await fetchCitiesForState(selectedState, controller.signal);
+
+        setStateCityOptions(cities);
+        setFilterOptions((currentOptions) => ({
+          ...currentOptions,
+          cities: mergeUniqueOptions(currentOptions.cities, cities)
+        }));
+      } catch (err) {
+        if (err.name === "AbortError") return;
+        setStateCityOptions([]);
+      } finally {
+        if (!controller.signal.aborted) {
+          setCityOptionsLoading(false);
+        }
+      }
+    }
+
+    loadCitiesForState();
+
+    return () => controller.abort();
+  }, [selectedState]);
+
   const availableRooms = hotels.reduce(
     (sum, hotel) => sum + hotel.availableRooms,
     0
@@ -182,9 +219,12 @@ function HotelsModule() {
     { label: "All States", value: null },
     ...filterOptions.states.map((state) => ({ label: state, value: state }))
   ];
+  const visibleCityOptions = isActiveFilterValue(selectedState)
+    ? stateCityOptions
+    : filterOptions.cities;
   const cityOptions = [
     { label: "All Cities", value: null },
-    ...filterOptions.cities.map((city) => ({ label: city, value: city }))
+    ...visibleCityOptions.map((city) => ({ label: city, value: city }))
   ];
 
   const ratingBodyTemplate = (rowData) => {
@@ -198,14 +238,6 @@ function HotelsModule() {
         icon="pi pi-home"
         className="availability-tag"
       />
-    );
-  };
-
-  const priceBodyTemplate = (rowData) => {
-    return (
-      <span className="font-semibold">
-        ₹{rowData.pricePerNight.toLocaleString("en-IN")}
-      </span>
     );
   };
 
@@ -287,9 +319,10 @@ function HotelsModule() {
             options={cityOptions}
             optionLabel="label"
             optionValue="value"
-            placeholder="City"
+            placeholder={cityOptionsLoading ? "Loading cities..." : "City"}
             className="module-filter"
             showClear
+            disabled={cityOptionsLoading}
           />
           <Dropdown
             value={ratingFilter}
@@ -367,12 +400,6 @@ function HotelsModule() {
             style={{ minWidth: "12rem" }}
           />
           <Column
-            field="pricePerNight"
-            header="Price/Night"
-            body={priceBodyTemplate}
-            style={{ minWidth: "10rem" }}
-          />
-          <Column
             field="totalBooked"
             header="Total Booked"
             sortable
@@ -416,6 +443,37 @@ function mergeUniqueOptions(existingOptions, nextOptions) {
       ...nextOptions.filter((option) => Boolean(option))
     ])
   ).sort();
+}
+
+async function fetchCitiesForState(state, signal) {
+  const cities = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: "100",
+      state,
+      sortBy: "name",
+      sortOrder: "asc"
+    });
+    const response = await fetch(`${API_BASE_URL}/hotels?${params}`, { signal });
+    const json = await response.json();
+
+    if (!response.ok || !json.success) {
+      throw new Error(json.message || "Failed to fetch cities");
+    }
+
+    cities.push(
+      ...(Array.isArray(json.data) ? json.data.map((hotel) => hotel.city) : [])
+    );
+
+    totalPages = json.pagination?.totalPages ?? 1;
+    page += 1;
+  } while (page <= totalPages);
+
+  return mergeUniqueOptions([], cities);
 }
 
 function isActiveFilterValue(value) {

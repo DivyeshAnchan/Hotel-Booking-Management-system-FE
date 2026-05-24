@@ -265,7 +265,6 @@ function BookingsModule() {
 
   const handleBookingCreated = () => {
     setRefreshKey((currentKey) => currentKey + 1);
-    setShowCreateDialog(false);
   };
 
   return (
