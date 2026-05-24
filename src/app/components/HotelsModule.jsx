@@ -13,8 +13,7 @@ const sortFieldMap = {
   name: "name",
   rating: "rating",
   totalBooked: "totalBooked",
-  availableRooms: "availableRooms",
-  createdAt: "createdAt"
+  availableRooms: "availableRooms"
 };
 
 const ratingOptions = [
@@ -41,8 +40,7 @@ function mapHotelFromApi(hotel) {
     rating: hotel.rating ?? 0,
     totalBooked: hotel.totalBooked ?? 0,
     availableRooms: hotel.availableRooms ?? 0,
-    isActive: Boolean(hotel.isActive),
-    createdAt: hotel.createdAt ? new Date(hotel.createdAt) : null
+    isActive: Boolean(hotel.isActive)
   };
 }
 
@@ -58,7 +56,7 @@ function HotelsModule() {
   const [error, setError] = useState("");
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
-  const [sortField, setSortField] = useState("createdAt");
+  const [sortField, setSortField] = useState("name");
   const [sortOrder, setSortOrder] = useState(-1);
   const [pagination, setPagination] = useState({
     totalItems: 0,
@@ -86,7 +84,7 @@ function HotelsModule() {
 
   const requestParams = useMemo(() => {
     const page = Math.floor(first / rows) + 1;
-    const backendSortField = sortFieldMap[sortField] || "createdAt";
+    const backendSortField = sortFieldMap[sortField] || "name";
     const backendSortOrder = sortOrder === 1 ? "asc" : "desc";
     const params = new URLSearchParams({
       page: String(page),
@@ -251,23 +249,13 @@ function HotelsModule() {
     );
   };
 
-  const dateBodyTemplate = (rowData) => {
-    if (!rowData.createdAt) return "—";
-
-    return rowData.createdAt.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric"
-    });
-  };
-
   const handlePage = (event) => {
     setFirst(event.first);
     setRows(event.rows);
   };
 
   const handleSort = (event) => {
-    setSortField(event.sortField || "createdAt");
+    setSortField(event.sortField || "name");
     setSortOrder(event.sortOrder || -1);
     setFirst(0);
   };
@@ -421,13 +409,6 @@ function HotelsModule() {
             field="isActive"
             header="Status"
             body={statusBodyTemplate}
-            style={{ minWidth: "10rem" }}
-          />
-          <Column
-            field="createdAt"
-            header="Joined"
-            sortable
-            body={dateBodyTemplate}
             style={{ minWidth: "10rem" }}
           />
         </DataTable>

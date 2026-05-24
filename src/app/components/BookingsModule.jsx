@@ -6,6 +6,9 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { Calendar } from "primereact/calendar";
 import { Dropdown } from "primereact/dropdown";
+import { Dialog } from "primereact/dialog";
+import { Card } from "primereact/card";
+import { Divider } from "primereact/divider";
 import { CreateBookingDialog } from "./CreateBookingDialog";
 
 const API_BASE_URL =
@@ -50,7 +53,6 @@ const sortFieldMap = {
   duration: "duration",
   numberOfGuests: "numberOfGuests",
   roomType: "roomType",
-  totalAmount: "totalAmount",
   status: "status"
 };
 
@@ -72,6 +74,13 @@ function BookingsModule() {
   const [sortOrder, setSortOrder] = useState(-1);
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookingAction, setBookingAction] = useState({
+    type: null,
+    loading: false,
+    error: "",
+    success: ""
+  });
   const [pagination, setPagination] = useState({
     totalItems: 0,
     currentPage: 1,
@@ -216,14 +225,6 @@ function BookingsModule() {
     );
   };
 
-  const amountBodyTemplate = (rowData) => {
-    return (
-      <span className="font-semibold">
-        ₹{rowData.totalAmount.toLocaleString("en-IN")}
-      </span>
-    );
-  };
-
   const hotelBodyTemplate = (rowData) => {
     return (
       <div>
@@ -265,6 +266,115 @@ function BookingsModule() {
 
   const handleBookingCreated = () => {
     setRefreshKey((currentKey) => currentKey + 1);
+  };
+
+  const handleBookingDetailsHide = () => {
+    if (bookingAction.loading) return;
+    setSelectedBooking(null);
+    resetBookingAction();
+  };
+
+  const resetBookingAction = () => {
+    setBookingAction({
+      type: null,
+      loading: false,
+      error: "",
+      success: ""
+    });
+  };
+
+  const updateBookingAfterAction = (updatedBooking) => {
+    setSelectedBooking(updatedBooking);
+    setBookings((currentBookings) =>
+      currentBookings.map((booking) =>
+        booking.id === updatedBooking.id ? updatedBooking : booking
+      )
+    );
+    setRefreshKey((currentKey) => currentKey + 1);
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!selectedBooking || !canConfirmBooking(selectedBooking.status)) return;
+
+    setBookingAction({
+      type: "confirm",
+      loading: true,
+      error: "",
+      success: ""
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/${selectedBooking.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          status: "confirmed"
+        })
+      });
+      const json = await response.json();
+
+      if (!response.ok || !json.success) {
+        throw new Error(json.message || "Failed to confirm booking");
+      }
+
+      const updatedBooking = mergeBookingUpdate(selectedBooking, json.data, "confirmed");
+
+      updateBookingAfterAction(updatedBooking);
+      setBookingAction({
+        type: "confirm",
+        loading: false,
+        error: "",
+        success: "Booking confirmed successfully."
+      });
+    } catch (err) {
+      setBookingAction({
+        type: "confirm",
+        loading: false,
+        error: err.message || "Failed to confirm booking",
+        success: ""
+      });
+    }
+  };
+
+  const handleCancelBooking = async () => {
+    if (!selectedBooking || !canCancelBooking(selectedBooking.status)) return;
+
+    setBookingAction({
+      type: "cancel",
+      loading: true,
+      error: "",
+      success: ""
+    });
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/bookings/${selectedBooking.id}/cancel`, {
+        method: "PATCH"
+      });
+      const json = await response.json();
+
+      if (!response.ok || !json.success) {
+        throw new Error(json.message || "Failed to cancel booking");
+      }
+
+      const updatedBooking = mergeBookingUpdate(selectedBooking, json.data, "cancelled");
+
+      updateBookingAfterAction(updatedBooking);
+      setBookingAction({
+        type: "cancel",
+        loading: false,
+        error: "",
+        success: "Booking cancelled successfully."
+      });
+    } catch (err) {
+      setBookingAction({
+        type: "cancel",
+        loading: false,
+        error: err.message || "Failed to cancel booking",
+        success: ""
+      });
+    }
   };
 
   return (
@@ -384,12 +494,16 @@ function BookingsModule() {
           rowsPerPageOptions={[5, 10, 25, 50]}
           loading={loading}
           emptyMessage={loading ? "Loading bookings..." : "No bookings found."}
-          className="dashboard-table p-datatable-sm"
+          className="dashboard-table bookings-table p-datatable-sm"
           stripedRows
           sortField={sortField}
           sortOrder={sortOrder}
           onPage={handlePage}
           onSort={handleSort}
+          onRowClick={(event) => {
+            setSelectedBooking(event.data);
+            resetBookingAction();
+          }}
           removableSort={false}
           responsiveLayout="scroll"
           dataKey="id"
@@ -398,40 +512,40 @@ function BookingsModule() {
             field="bookingNumber"
             header="Booking #"
             sortable
-            style={{ minWidth: "11rem" }}
+            style={{ minWidth: "8.5rem" }}
           />
           <Column
             field="hotelName"
             header="Hotel"
             body={hotelBodyTemplate}
-            style={{ minWidth: "16rem" }}
+            style={{ minWidth: "13rem" }}
           />
           <Column
             field="userName"
             header="Guest"
             body={guestBodyTemplate}
-            style={{ minWidth: "15rem" }}
+            style={{ minWidth: "12rem" }}
           />
           <Column
             field="bookingDate"
             header="Booked Date"
             sortable
             body={(rowData) => dateBodyTemplate(rowData, "bookingDate")}
-            style={{ minWidth: "11rem" }}
+            style={{ minWidth: "9.25rem" }}
           />
           <Column
             field="checkInDate"
             header="Check-In"
             sortable
             body={(rowData) => dateBodyTemplate(rowData, "checkInDate")}
-            style={{ minWidth: "10rem" }}
+            style={{ minWidth: "9rem" }}
           />
           <Column
             field="checkOutDate"
             header="Check-Out"
             sortable
             body={(rowData) => dateBodyTemplate(rowData, "checkOutDate")}
-            style={{ minWidth: "10rem" }}
+            style={{ minWidth: "9rem" }}
           />
           <Column
             field="numberOfGuests"
@@ -442,7 +556,7 @@ function BookingsModule() {
                 {rowData.numberOfGuests}
               </span>
             )}
-            style={{ minWidth: "8rem" }}
+            style={{ minWidth: "6.5rem" }}
           />
           <Column
             field="duration"
@@ -453,28 +567,21 @@ function BookingsModule() {
                 {rowData.duration} {rowData.duration === 1 ? "day" : "days"}
               </span>
             )}
-            style={{ minWidth: "8rem" }}
+            style={{ minWidth: "7.25rem" }}
           />
           <Column
             field="roomType"
             header="Room Type"
             sortable
             body={(rowData) => <Tag value={formatRoomType(rowData.roomType)} severity="info" />}
-            style={{ minWidth: "10rem" }}
-          />
-          <Column
-            field="totalAmount"
-            header="Amount"
-            sortable
-            body={amountBodyTemplate}
-            style={{ minWidth: "10rem" }}
+            style={{ minWidth: "8.5rem" }}
           />
           <Column
             field="status"
             header="Status"
             sortable
             body={statusBodyTemplate}
-            style={{ minWidth: "11rem" }}
+            style={{ minWidth: "9rem" }}
           />
         </DataTable>
       </div>
@@ -484,7 +591,164 @@ function BookingsModule() {
         onHide={() => setShowCreateDialog(false)}
         onBookingCreated={handleBookingCreated}
       />
+
+      <BookingDetailsDialog
+        booking={selectedBooking}
+        bookingAction={bookingAction}
+        onConfirm={handleConfirmBooking}
+        onCancel={handleCancelBooking}
+        onHide={handleBookingDetailsHide}
+      />
     </section>
+  );
+}
+
+function BookingDetailsDialog({
+  booking,
+  bookingAction,
+  onConfirm,
+  onCancel,
+  onHide
+}) {
+  if (!booking) return null;
+
+  const canCancel = canCancelBooking(booking.status);
+  const canConfirm = canConfirmBooking(booking.status);
+  const hasActions = canConfirm || canCancel;
+  const actionLoading = bookingAction.loading;
+  const meta = statusMeta[booking.status] || statusMeta.pending;
+  const successTitle = bookingAction.type === "confirm" ? "Booking confirmed" : "Booking cancelled";
+  const cancelling = actionLoading && bookingAction.type === "cancel";
+  const confirming = actionLoading && bookingAction.type === "confirm";
+
+  return (
+    <Dialog
+      visible={Boolean(booking)}
+      onHide={onHide}
+      header="Booking Details"
+      style={{ width: "90vw", maxWidth: "900px" }}
+      modal
+      dismissableMask={!actionLoading}
+      closable={!actionLoading}
+    >
+      <div className="booking-receipt-panel booking-details-panel">
+        <div className="booking-receipt-header">
+          <span className="booking-receipt-icon booking-details-icon">
+            <i className={meta.icon} />
+          </span>
+          <div>
+            <p className="booking-step-eyebrow">Booking Record</p>
+            <div className="booking-receipt-title-row">
+              <h3 className="booking-step-title">
+                {booking.bookingNumber || "Booking details"}
+              </h3>
+              <Tag value={meta.label} icon={meta.icon} className={meta.className} />
+            </div>
+            <p className="booking-receipt-subtitle">
+              Created {formatDisplayDate(booking.bookingDate)}
+            </p>
+          </div>
+        </div>
+
+        <Card className="booking-receipt-card">
+          <div className="booking-receipt-rows">
+            <div className="booking-receipt-row">
+              <span>Guest</span>
+              <strong>{booking.userName || "-"}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Guest Email</span>
+              <strong>{booking.userEmail || "-"}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Hotel</span>
+              <strong>{booking.hotelName || "-"}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Hotel Location</span>
+              <strong>{booking.hotelLocation || "-"}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Stay</span>
+              <strong>
+                {formatDisplayDate(booking.checkInDate)} - {formatDisplayDate(booking.checkOutDate)}
+              </strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Duration</span>
+              <strong>
+                {booking.duration} {booking.duration === 1 ? "day" : "days"}
+              </strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Room</span>
+              <strong>{formatRoomType(booking.roomType)}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Guests</span>
+              <strong>{booking.numberOfGuests}</strong>
+            </div>
+            <div className="booking-receipt-row">
+              <span>Confirmation</span>
+              <strong>{meta.label}</strong>
+            </div>
+            <Divider />
+            <div className="booking-receipt-total">
+              <span>Total Amount</span>
+              <strong>₹{booking.totalAmount.toLocaleString("en-IN")}</strong>
+            </div>
+          </div>
+        </Card>
+
+        {bookingAction.error && (
+          <div className="booking-confirm-error">
+            <i className="pi pi-exclamation-circle" />
+            <span>{bookingAction.error}</span>
+          </div>
+        )}
+
+        {bookingAction.success && (
+          <div className="booking-confirm-success">
+            <i className="pi pi-check-circle" />
+            <div>
+              <strong>{successTitle}</strong>
+              <span>{bookingAction.success}</span>
+            </div>
+          </div>
+        )}
+
+        <div
+          className={`booking-receipt-actions${!hasActions ? " booking-receipt-actions-final" : ""}${
+            canConfirm && canCancel ? " booking-receipt-actions-triple" : ""
+          }`}
+        >
+          <Button
+            label="Close"
+            onClick={onHide}
+            className="dialog-secondary-button booking-receipt-close-button p-button-outlined"
+            disabled={actionLoading}
+          />
+          {canConfirm && (
+            <Button
+              label={confirming ? "Confirming" : "Confirm Booking"}
+              icon={confirming ? "pi pi-spin pi-spinner" : "pi pi-check-circle"}
+              onClick={onConfirm}
+              className="booking-confirm-action"
+              disabled={actionLoading}
+            />
+          )}
+          {canCancel && (
+            <Button
+              label={cancelling ? "Cancelling" : "Cancel Booking"}
+              icon={cancelling ? "pi pi-spin pi-spinner" : "pi pi-times-circle"}
+              onClick={onCancel}
+              className="booking-cancel-action"
+              disabled={actionLoading}
+            />
+          )}
+        </div>
+      </div>
+    </Dialog>
   );
 }
 
@@ -515,6 +779,32 @@ function mapBookingFromApi(booking) {
     status: booking.status || "pending",
     totalAmount: booking.totalAmount ?? 0,
     bookingDate: booking.bookingDate ? new Date(booking.bookingDate) : null
+  };
+}
+
+function mergeBookingUpdate(currentBooking, apiBooking, fallbackStatus) {
+  if (!apiBooking) {
+    return {
+      ...currentBooking,
+      status: fallbackStatus || currentBooking.status
+    };
+  }
+
+  const mappedBooking = mapBookingFromApi(apiBooking);
+
+  return {
+    ...currentBooking,
+    ...mappedBooking,
+    id: mappedBooking.id || currentBooking.id,
+    bookingNumber: mappedBooking.bookingNumber || currentBooking.bookingNumber,
+    userName: mappedBooking.userName || currentBooking.userName,
+    userEmail: mappedBooking.userEmail || currentBooking.userEmail,
+    userPhone: mappedBooking.userPhone || currentBooking.userPhone,
+    hotelName: mappedBooking.hotelName || currentBooking.hotelName,
+    hotelLocation: mappedBooking.hotelLocation || currentBooking.hotelLocation,
+    hotelPhone: mappedBooking.hotelPhone || currentBooking.hotelPhone,
+    roomType: mappedBooking.roomType || currentBooking.roomType,
+    status: mappedBooking.status || fallbackStatus || currentBooking.status
   };
 }
 
@@ -552,6 +842,24 @@ function formatRoomType(roomType) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function formatDisplayDate(date) {
+  if (!date) return "-";
+
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function canCancelBooking(status) {
+  return status === "pending" || status === "confirmed";
+}
+
+function canConfirmBooking(status) {
+  return status === "pending";
 }
 
 function formatHotelLocation(hotel) {

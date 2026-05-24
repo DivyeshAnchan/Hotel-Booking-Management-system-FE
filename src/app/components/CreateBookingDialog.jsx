@@ -34,7 +34,7 @@ const hotelPriceOptions = [
 ];
 
 const hotelSortOptions = [
-  { label: "Most Available", value: "availableRooms:desc" },
+  { label: "Most Rooms", value: "availableRooms:desc" },
   { label: "Highest Rated", value: "rating:desc" },
   { label: "Most Booked", value: "totalBooked:desc" },
   { label: "Name A-Z", value: "name:asc" }
@@ -155,6 +155,26 @@ function getSortParams(sortValue) {
     sortBy,
     sortOrder
   };
+}
+
+function sortHotels(hotels, sortValue) {
+  const { sortBy, sortOrder } = getSortParams(sortValue);
+  const direction = sortOrder === "asc" ? 1 : -1;
+
+  return [...hotels].sort((firstHotel, secondHotel) => {
+    if (sortBy === "name") {
+      return firstHotel.name.localeCompare(secondHotel.name) * direction;
+    }
+
+    const firstValue = Number(firstHotel[sortBy] || 0);
+    const secondValue = Number(secondHotel[sortBy] || 0);
+
+    if (firstValue === secondValue) {
+      return firstHotel.name.localeCompare(secondHotel.name);
+    }
+
+    return (firstValue - secondValue) * direction;
+  });
 }
 
 function getStayNights(checkInDate, checkOutDate) {
@@ -480,7 +500,10 @@ function CreateBookingDialog({
 
   const stateOptions = toSelectOptions(states);
   const cityOptions = toSelectOptions(cities);
-  const visibleHotels = hotels.filter((hotel) => isHotelInPriceRange(hotel, hotelPriceFilter));
+  const visibleHotels = sortHotels(
+    hotels.filter((hotel) => isHotelInPriceRange(hotel, hotelPriceFilter)),
+    hotelSort
+  );
   const hasActiveHotelFilters =
     Boolean(hotelSearch.trim()) ||
     isValueSelected(hotelRatingFilter) ||
@@ -1035,7 +1058,7 @@ function CreateBookingDialog({
                 </div>
               </div>
               <div className="hotel-detail-metric">
-                <span className="hotel-detail-metric-icon"><i className="pi pi-calendar-check" /></span>
+                <span className="hotel-detail-metric-icon"><i className="pi pi-ticket" /></span>
                 <div>
                   <p>Total Bookings</p>
                   <strong>{selectedHotel.totalBooked} bookings</strong>
@@ -1073,7 +1096,7 @@ function CreateBookingDialog({
 
             <Divider />
 
-            <div className="hotel-detail-section">
+            <div className="hotel-detail-section hotel-room-section">
               <div>
                 <h3>Room Types</h3>
                 <p>Available room categories, guest capacity, and nightly rates.</p>
@@ -1326,9 +1349,8 @@ function CreateBookingDialog({
           <div className={`booking-receipt-actions${receiptConfirmed ? " booking-receipt-actions-final" : ""}`}>
             <Button
     label="Close"
-    icon="pi pi-times"
     onClick={handleHide}
-    className="dialog-secondary-button p-button-outlined"
+    className="dialog-secondary-button booking-receipt-close-button p-button-outlined"
     disabled={bookingConfirming}
   />
             {!receiptConfirmed && (
