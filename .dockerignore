@@ -5,3 +5,4 @@ dist
 Dockerfile
 README.md
 .env
+package-lock.json
