@@ -196,6 +196,25 @@ function getRequiredRoomCount(numberOfGuests, roomType) {
   return Math.max(1, Math.ceil(numberOfGuests / capacity));
 }
 
+function getMaxBookableGuests(hotel, roomType) {
+  const availableRooms = Number(hotel?.availableRooms || 0);
+  const capacity = Number(roomType?.capacity || 0);
+
+  if (availableRooms <= 0 || capacity <= 0) return null;
+
+  return availableRooms * capacity;
+}
+
+function normalizeGuestCount(value, maxGuests) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) return 1;
+
+  const wholeGuestCount = Math.max(1, Math.floor(numericValue));
+
+  return maxGuests ? Math.min(wholeGuestCount, maxGuests) : wholeGuestCount;
+}
+
 function toApiDate(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -284,6 +303,11 @@ function CreateBookingDialog({
     hasNextPage: false,
     hasPreviousPage: false
   });
+  const maxGuests = getMaxBookableGuests(selectedHotel, selectedRoomType);
+
+  useEffect(() => {
+    setNumberOfGuests((currentGuestCount) => normalizeGuestCount(currentGuestCount, maxGuests));
+  }, [maxGuests]);
 
   useEffect(() => {
     if (!visible) return;
@@ -594,12 +618,15 @@ function CreateBookingDialog({
       return;
     }
 
-    const totalAmount = calculateTotal();
+    const requestedGuests = normalizeGuestCount(numberOfGuests, maxGuests);
+    const totalAmount = calculateTotal(requestedGuests);
 
     if (totalAmount <= 0) {
       setBookingCreateError("Total amount must be greater than zero.");
       return;
     }
+
+    setNumberOfGuests(requestedGuests);
 
     setBookingCreateError("");
     setBookingConfirmError("");
@@ -620,7 +647,7 @@ function CreateBookingDialog({
           checkInDate: toApiDate(checkInDate),
           checkOutDate: toApiDate(checkOutDate),
           roomType: normalizeRoomTypeForApi(selectedRoomType),
-          numberOfGuests,
+          numberOfGuests: requestedGuests,
           totalAmount
         })
       });
@@ -705,10 +732,10 @@ function CreateBookingDialog({
       setBookingConfirming(false);
     }
   };
-  const calculateTotal = () => {
+  const calculateTotal = (guestCount = numberOfGuests) => {
     if (!checkInDate || !checkOutDate || !selectedRoomType) return 0;
     const days = getStayNights(checkInDate, checkOutDate);
-    const requiredRooms = getRequiredRoomCount(numberOfGuests, selectedRoomType);
+    const requiredRooms = getRequiredRoomCount(guestCount, selectedRoomType);
     const pricePerNight = selectedRoomType.pricePerNight || selectedHotel?.pricePerNight || 0;
     return days * requiredRooms * pricePerNight;
   };
@@ -1198,9 +1225,10 @@ function CreateBookingDialog({
               <InputNumber
     id="guests"
     value={numberOfGuests}
-    onValueChange={(e) => setNumberOfGuests(e.value || 1)}
+    onValueChange={(e) => setNumberOfGuests(normalizeGuestCount(e.value, maxGuests))}
     min={1}
-    max={10}
+    max={maxGuests || undefined}
+    step={1}
     className="w-full"
   />
             </div>
